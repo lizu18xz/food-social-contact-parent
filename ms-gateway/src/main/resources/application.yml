@@ -1,0 +1,54 @@
+server:
+  port: 80
+
+spring:
+  application:
+    name: ms-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true #开启配置注册中心进行路由
+          lower-case-service-id: true #将服务名转小写
+      routes:
+        - id: ms-diners
+          uri: lb://ms-diners
+          predicates:
+            - Path=/diners/**
+          filters:
+            - StripPrefix=1
+
+        - id: ms-oauth2-server
+          uri: lb://ms-oauth2-server
+          predicates:
+            - Path=/auth/**
+          filters:
+            - StripPrefix=1
+
+        - id: ms-seckill
+          uri: lb://ms-seckill
+          predicates:
+            - Path=/seckill/**
+          filters:
+            - StripPrefix=1
+
+
+secure:
+  ignore:
+    urls: #配置白名单路径
+      - /actuator/**
+      - /auth/oauth/**
+      - /diners/signin
+      - /diners/send
+      - /diners/checkPhone
+      - /diners/register
+      - /seckill/add
+
+#eureka 注册中心,注册网关到注册中心
+eureka:
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.cloud.client.ip-address}:${server.port}
+  client:
+    service-url:
+      defaultZone: http://localhost:8080/eureka/
