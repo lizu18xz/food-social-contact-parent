@@ -8,6 +8,7 @@ import com.fayayo.commons.model.dto.DinersDTO;
 import com.fayayo.commons.model.pojo.Diners;
 import com.fayayo.commons.utils.AssertUtil;
 import com.fayayo.commons.utils.ResultInfoUtil;
+import com.fayayo.commons.vo.ShortDinerInfo;
 import com.fayayo.diners.config.OAuth2ClientConfiguration;
 import com.fayayo.diners.domain.OAuthDinerInfo;
 import com.fayayo.diners.mapper.DinersMapper;
@@ -22,6 +23,7 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * @author dalizu on 2021/1/26.
@@ -45,6 +47,16 @@ public class DinersService {
 
     @Resource
     private SendVerifyCodeService sendVerifyCodeService;
+
+
+    public List<ShortDinerInfo> findByIds(String ids){
+        AssertUtil.isNotEmpty(ids);
+        String [] idArr=ids.split(",");
+        List<ShortDinerInfo>dinerInfos=dinersMapper.findByIds(idArr);
+        return dinerInfos;
+    }
+
+
 
     /**
      * 用户注册
