@@ -66,7 +66,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         //发送远程请求验证token
         try {
             ResponseEntity<String> entity= restTemplate.getForEntity(checkTokenUrl,String.class);
-            log.info("check token");
+            //log.info("check token");
             //token 无效的业务逻辑处理
             if(entity.getStatusCode()!= HttpStatus.OK){
                 return handleException.writeError(exchange,"token 是无效的".concat(access_token));

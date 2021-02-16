@@ -48,6 +48,12 @@
             <artifactId>redisson-spring-boot-starter</artifactId>
             <version>3.13.6</version>
         </dependency>
+
+            <dependency>
+                <groupId>redis.clients</groupId>
+                <artifactId>jedis</artifactId>
+                <version>3.3.0</version>
+            </dependency>
     </dependencies>
 
 </project>

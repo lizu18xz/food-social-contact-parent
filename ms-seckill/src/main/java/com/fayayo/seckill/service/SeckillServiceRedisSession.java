@@ -15,8 +15,8 @@ import com.fayayo.commons.vo.SignInDinerInfo;
 import com.fayayo.seckill.mapper.SeckillVouchersMapper;
 import com.fayayo.seckill.mapper.VoucherOrdersMapper;
 import com.fayayo.seckill.model.RedisLock;
+import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -27,14 +27,15 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author dalizu on 2021/1/28.
  * @version v1.0
- * @desc
+ * @desc 学习redissession使用
  */
-@Service
-public class SeckillService {
+//@Service
+public class SeckillServiceRedisSession {
 
     @Resource
     private SeckillVouchersMapper seckillVouchersMapper;
@@ -75,13 +76,6 @@ public class SeckillService {
         AssertUtil.isTrue(voucherId == null || voucherId < 0, "请选择需要抢购的代金券");
         AssertUtil.isNotEmpty(accessToken, "请登录");
 
-        //注释原始的关系型数据库流程
-        // 判断此代金券是否加入抢购
-        /*SeckillVouchers seckillVouchers = seckillVouchersMapper.selectVoucher(voucherId);
-        AssertUtil.isTrue(seckillVouchers == null, "该代金券并未有抢购活动");
-        // 判断是否有效
-        AssertUtil.isTrue(seckillVouchers.getIsValid() == 0, "该活动已结束");*/
-
         //采用Redis
         String key=RedisKeyConstant.seckill_vouchers.getKey() + voucherId;
         Map<String,Object>map=redisTemplate.opsForHash().entries(key);
@@ -110,21 +104,18 @@ public class SeckillService {
                 seckillVouchers.getFkVoucherId());
         AssertUtil.isTrue(order != null, "该用户已抢到该代金券，无需再抢");
 
-        //注释原始关系型数据库流程
-        // 扣库存
-       /* int count = seckillVouchersMapper.stockDecrease(seckillVouchers.getId());
-        AssertUtil.isTrue(count == 0, "该券已经卖完了");*/
-
         //食客id+代金券id,使用redis锁一个账号只能购买一次
         String lockName = RedisKeyConstant.lock_key.getKey()
                 +dinerInfo.getId()+":"+voucherId;
         long expireTime=seckillVouchers.getEndTime().getTime()-now.getTime();
-        //lockKey 释放锁的时候比较使用  自定义 Redis 分布式锁
-        String lockKey=redisLock.tryLock(lockName,expireTime);
 
+        // Redisson 分布式锁
+        RLock lock = redissonClient.getLock(lockName);
         try {
             //如果不为空意味着拿到锁了
-            if(StrUtil.isNotBlank(lockKey)){
+            // Redisson 分布式锁处理
+            boolean isLocked = lock.tryLock(expireTime, TimeUnit.MILLISECONDS);
+            if (isLocked) {
                 //下单，存储到订单表VoucherOrders,加了事物,后面该券已经卖完了异常抛出此处会回滚
                 VoucherOrders voucherOrders=new VoucherOrders();
                 voucherOrders.setFkDinerId(dinerInfo.getId());
@@ -136,12 +127,6 @@ public class SeckillService {
                 voucherOrders.setStatus(0);
                 long count = voucherOrdersMapper.save(voucherOrders);
                 AssertUtil.isTrue(count==0,"用户抢购失败");
-
-                //采用Redis 扣库存  疑问? https://dalin.blog.csdn.net/article/details/107679354
-                //long count=redisTemplate.opsForHash().increment(key,"amount",-1);  这样不是一个原子操作
-                //count=redisTemplate.opsForHash().increment(key,"amount",-1);
-                //AssertUtil.isTrue(count < 0, "该券已经卖完了");
-
                 //采用Redis +lua 扣库存
                 List<String>keys=new ArrayList<>();
                 keys.add(key);
@@ -152,8 +137,8 @@ public class SeckillService {
         }catch (Exception e){
             //手动回滚事物
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            //解锁
-            redisLock.unlock(lockName,lockKey);
+            // Redisson 解锁
+            lock.unlock();
             if(e instanceof ParameterException){
                 return ResultInfoUtil.buildError(0,"该券已经卖完了",path);
             }
