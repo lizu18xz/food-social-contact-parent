@@ -12,6 +12,7 @@
         <module>ms-oauth2-server</module>
         <module>ms-seckill</module>
         <module>ms-follow</module>
+        <module>ms-feeds</module>
     </modules>
     <groupId>org.example</groupId>
     <artifactId>food-social-contact-parent</artifactId>

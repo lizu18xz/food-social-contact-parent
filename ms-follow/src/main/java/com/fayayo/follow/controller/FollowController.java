@@ -1,6 +1,7 @@
 package com.fayayo.follow.controller;
 
 import com.fayayo.commons.model.domain.ResultInfo;
+import com.fayayo.commons.utils.ResultInfoUtil;
 import com.fayayo.follow.service.FollowService;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +21,15 @@ public class FollowController {
 
     @Resource
     private HttpServletRequest request;
+
+
+    //获取粉丝列表ids
+    @GetMapping("followers/{dinerId}")
+    public ResultInfo findFollowers(@PathVariable Integer dinerId){
+
+        return ResultInfoUtil.buildSuccess(request.getServletPath(),
+                followService.findFollowers(dinerId));
+    }
 
 
     //共同关注好友列表

@@ -57,6 +57,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         }
         //获取access_token
         String access_token=exchange.getRequest().getQueryParams().getFirst("access_token");
+        log.info("filters start access_token:{}",access_token);
         //判断token是否为空
         if(StringUtils.isBlank(access_token)){
             return handleException.writeError(exchange,"请登录");
