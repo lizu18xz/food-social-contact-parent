@@ -14,6 +14,7 @@
         <module>ms-follow</module>
         <module>ms-feeds</module>
         <module>ms-points</module>
+        <module>ma-restaurants</module>
     </modules>
     <groupId>org.example</groupId>
     <artifactId>food-social-contact-parent</artifactId>

@@ -1,9 +1,9 @@
 server:
-  port: 8086 # 端口
+  port: 8087 # 端口
 
 spring:
   application:
-    name: ms-points # 应用名
+    name: ms-resturants # 应用名
   # 数据库
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -17,10 +17,10 @@ spring:
     host: 114.67.67.44
     timeout: 3000 # 连接超时时间
     password: root@123456 # Redis 服务器密码
-    database: 3
+    database: 5
   # Swagger
   swagger:
-    base-package: com.fayayo.points
+    base-package: com.fayayo.resturants
     title: 美食社交食客API接口文档
 
 # 配置 Eureka Server 注册中心
@@ -36,7 +36,6 @@ service:
   name:
     ms-oauth-server: http://ms-oauth2-server/
     ms-diners-server: http://ms-diners/
-    ms-follow-server: http://ms-follow/
 
 mybatis:
   configuration:

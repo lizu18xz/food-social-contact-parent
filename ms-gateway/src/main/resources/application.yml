@@ -53,6 +53,13 @@ spring:
           filters:
             - StripPrefix=1
 
+        - id: ms-restaurants
+          uri: lb://ms-restaurants
+          predicates:
+            - Path=/restaurants/**
+          filters:
+            - StripPrefix=1
+
 secure:
   ignore:
     urls: #配置白名单路径
