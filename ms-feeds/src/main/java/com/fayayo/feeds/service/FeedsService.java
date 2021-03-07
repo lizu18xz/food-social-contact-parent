@@ -107,6 +107,8 @@ public class FeedsService {
 
 
     /**
+     * ZSet的使用 key  值,score(最后修改的时间)
+     *
      * 变更feed (提供给follow服务调用)
      * 关注和取关后还需要更新其feeds的信息
      * 关注好友的id

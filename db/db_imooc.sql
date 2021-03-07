@@ -554,3 +554,19 @@ CREATE TABLE `t_voucher_orders`  (
 -- ----------------------------
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+
+
+
+
+DROP TABLE IF EXISTS `t_diners_points`;
+CREATE TABLE `t_diners_points`  (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `fk_diner_id` int(11) NULL DEFAULT NULL,
+     `points` int(11) NULL DEFAULT NULL,
+    `types` int(11) NULL DEFAULT NULL comment '积分类型 0-签到,1-关注好友',
+     `is_valid` int(11) NULL DEFAULT NULL,
+     `create_date` datetime(0) NULL DEFAULT NULL,
+      `update_date` datetime(0) NULL DEFAULT NULL,
+                                    PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;

@@ -46,6 +46,13 @@ spring:
           filters:
             - StripPrefix=1
 
+        - id: ms-points
+          uri: lb://ms-points
+          predicates:
+            - Path=/points/**
+          filters:
+            - StripPrefix=1
+
 secure:
   ignore:
     urls: #配置白名单路径
